@@ -1,3 +1,4 @@
+// src/features/editor/components/editor.tsx
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { fabric } from 'fabric';
 
@@ -6,6 +7,8 @@ import { Navbar } from './navbar';
 import { Sidebar } from './sidebar';
 import { ActiveTool } from '../active-types';
 import { ShapeSidebar } from './shape-sidebar';
+import { FillColorSidebar } from './fill-color-sidebar';
+import { Toolbar } from './toolbar';
 
 export const Editor = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -50,14 +53,26 @@ export const Editor = () => {
           activeTool={activeTool}
           onChangeActiveTool={onChangeActiveTool}
         />
-        <div 
-          ref={containerRef} 
-          className="flex-1 bg-muted relative overflow-hidden"
-        >
-          <canvas 
-            ref={canvasRef}
-            className="absolute inset-0 w-full h-full"
+        <FillColorSidebar
+          editor={editor}
+          activeTool={activeTool}
+          onChangeActiveTool={onChangeActiveTool}
+        />
+        <div className="flex-1 flex flex-col bg-muted relative overflow-hidden">
+          <Toolbar
+            editor={editor}
+            activeTool={activeTool}
+            onChangeActiveTool={onChangeActiveTool}
           />
+          <div 
+            ref={containerRef} 
+            className="flex-1 relative"
+          >
+            <canvas 
+              ref={canvasRef}
+              className="absolute inset-0 w-full h-full"
+            />
+          </div>
         </div>
       </div>
     </div>

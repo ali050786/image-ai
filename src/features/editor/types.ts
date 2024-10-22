@@ -3,6 +3,21 @@ import { fabric } from 'fabric';
 
 export interface Editor {
   canvas: fabric.Canvas;
+  selectedObjects: fabric.Object[];
+
+  // Selection methods
+  isObjectSelected: () => boolean;
+  getActiveObjects: () => fabric.Object[];
+
+  // Color management methods
+  getFillColor: () => string;
+  getStrokeColor: () => string;
+  getStrokeWidth: () => number;
+  changeFillColor: (value: string) => void;
+  changeStrokeColor: (value: string) => void;
+  changeStrokeWidth: (value: number) => void;
+
+  // Shape creation methods
   addCircle: () => void;
   addSoftRectangle: () => void;
   addRectangle: () => void;
