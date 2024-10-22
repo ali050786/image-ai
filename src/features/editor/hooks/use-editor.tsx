@@ -58,8 +58,8 @@ export const useEditor = () => {
 
     // Create test rectangle
     const test = new fabric.Rect({
-      height: 100,
-      width: 100,
+      width: 200,
+      height: 200,
       fill: 'black',
     });
 

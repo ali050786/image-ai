@@ -1,6 +1,7 @@
 // src/features/editor/components/editor.tsx
 import { useEffect, useRef } from 'react';
 import { useEditor } from '../hooks/use-editor';
+import { Navbar } from './navbar'
 
 export const Editor = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -23,6 +24,7 @@ export const Editor = () => {
 
   return (
     <div className="h-full flex flex-col">
+      <Navbar />
       <div 
         ref={containerRef} 
         className="flex-1 bg-muted relative overflow-hidden"
