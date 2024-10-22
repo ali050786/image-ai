@@ -4,7 +4,7 @@ import { fabric } from 'fabric';
 export interface Editor {
   canvas: fabric.Canvas;
   selectedObjects: fabric.Object[];
-
+  
   // Selection methods
   isObjectSelected: () => boolean;
   getActiveObjects: () => fabric.Object[];
@@ -16,6 +16,8 @@ export interface Editor {
   changeFillColor: (value: string) => void;
   changeStrokeColor: (value: string) => void;
   changeStrokeWidth: (value: number) => void;
+  getActiveFillColor: () => string;
+  getActiveStrokeColor: () => string;  // Add this line
 
   // Shape creation methods
   addCircle: () => void;
@@ -60,3 +62,13 @@ export const DIAMOND_OPTIONS = {
   width: 600,
   height: 600,
 };
+
+export const selectionDependentTools = [
+  "fill",
+  "stroke-color",  // Add this
+  "font",
+  "filter",
+  "opacity",
+  "remove-bg",
+  "stroke-width",
+] as const;

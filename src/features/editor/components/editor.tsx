@@ -9,6 +9,7 @@ import { ActiveTool } from '../active-types';
 import { ShapeSidebar } from './shape-sidebar';
 import { FillColorSidebar } from './fill-color-sidebar';
 import { Toolbar } from './toolbar';
+import { StrokeColorSidebar } from './stroke-color-sidebar';
 
 export const Editor = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -54,6 +55,11 @@ export const Editor = () => {
           onChangeActiveTool={onChangeActiveTool}
         />
         <FillColorSidebar
+          editor={editor}
+          activeTool={activeTool}
+          onChangeActiveTool={onChangeActiveTool}
+        />
+        <StrokeColorSidebar
           editor={editor}
           activeTool={activeTool}
           onChangeActiveTool={onChangeActiveTool}

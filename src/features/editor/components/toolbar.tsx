@@ -12,33 +12,34 @@ interface ToolbarProps {
   onChangeActiveTool: (tool: ActiveTool) => void;
 }
 
-
 export const Toolbar = ({
-    editor,
-    activeTool,
-    onChangeActiveTool,
-  }: ToolbarProps) => {
-    const hasSelection = editor?.isObjectSelected();
-    
-    // Return empty toolbar if no selection
-    if (!hasSelection) {
-      return (
-        <div className="shrink-0 h-[56px] border-b bg-white w-full flex items-center overflow-x-auto z-[49] p-2 gap-x-2" />
-      );
-    }
+  editor,
+  activeTool,
+  onChangeActiveTool,
+}: ToolbarProps) => {
+  const hasSelection = editor?.isObjectSelected();
   
-    const activeObjects = editor?.getActiveObjects() || [];
-    const isMultipleSelection = activeObjects.length > 1;
-    const firstObject = activeObjects[0];
-    const isImage = firstObject?.type === "image";
-    const fillColor = editor?.getFillColor();
-  
+  if (!hasSelection) {
     return (
-      <div className="shrink-0 h-[56px] border-b bg-white w-full flex items-center overflow-x-auto z-[49] p-2 gap-x-2">
-        {!isImage && (
+      <div className="shrink-0 h-[56px] border-b bg-white w-full flex items-center overflow-x-auto z-[49] p-2 gap-x-2" />
+    );
+  }
+
+  const activeObjects = editor?.getActiveObjects() || [];
+  const isMultipleSelection = activeObjects.length > 1;
+  const firstObject = activeObjects[0];
+  const isImage = firstObject?.type === "image";
+  const fillColor = editor?.getActiveFillColor();
+  const strokeColor = editor?.getActiveStrokeColor();
+
+  return (
+    <div className="shrink-0 h-[56px] border-b bg-white w-full flex items-center overflow-x-auto z-[49] p-2 gap-x-2">
+      {!isImage && (
+        <>
+          {/* Fill Color Button */}
           <div className="flex items-center h-full justify-center">
             <Hint 
-              label={isMultipleSelection ? "Change all colors" : "Color"} 
+              label={isMultipleSelection ? "Change all colors" : "Fill color"} 
               side="bottom" 
               sideOffset={5}
             >
@@ -57,7 +58,31 @@ export const Toolbar = ({
               </Button>
             </Hint>
           </div>
-        )}
-      </div>
-    );
-  };
+
+          {/* Stroke Color Button */}
+          <div className="flex items-center h-full justify-center">
+            <Hint 
+              label={isMultipleSelection ? "Change all stroke colors" : "Stroke color"} 
+              side="bottom" 
+              sideOffset={5}
+            >
+              <Button
+                onClick={() => onChangeActiveTool("stroke-color")}
+                size="icon"
+                variant="ghost"
+                className={cn(
+                  activeTool === "stroke-color" && "bg-gray-100"
+                )}
+              >
+                <div
+                  className="rounded-sm size-4 border-2 bg-white"
+                  style={{ borderColor: strokeColor }}
+                />
+              </Button>
+            </Hint>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};

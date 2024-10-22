@@ -2,26 +2,30 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { fabric } from 'fabric';
 
-import { 
-  Editor, 
-  FILL_COLOR, 
+import {
+  Editor,
+  FILL_COLOR,
   STROKE_COLOR,
   STROKE_WIDTH,
-  CIRCLE_OPTIONS, 
-  RECTANGLE_OPTIONS, 
-  TRIANGLE_OPTIONS, 
-  DIAMOND_OPTIONS 
+  CIRCLE_OPTIONS,
+  RECTANGLE_OPTIONS,
+  TRIANGLE_OPTIONS,
+  DIAMOND_OPTIONS
 } from '../types';
 import { useAutoResize } from './use-auto-resize';
 import { useCanvasEvents } from './use-canvas-events';
-import { isTextType } from '../utils'
+import { isTextType } from '../utils';
 
 interface CanvasHistory {
   states: string[];
   currentStateIndex: number;
 }
 
-export const useEditor = () => {
+export interface EditorHookProps {
+  clearSelectionCallback?: () => void;
+}
+
+export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
   // Canvas and Container State
   const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
@@ -30,10 +34,10 @@ export const useEditor = () => {
   const [fillColor, setFillColor] = useState(FILL_COLOR);
   const [strokeColor, setStrokeColor] = useState(STROKE_COLOR);
   const [strokeWidth, setStrokeWidth] = useState(STROKE_WIDTH);
-  
+
   // Selection State
   const [selectedObjects, setSelectedObjects] = useState<fabric.Object[]>([]);
-  
+
   // History Management
   const canvasHistory = useRef<CanvasHistory>({
     states: [],
@@ -51,7 +55,7 @@ export const useEditor = () => {
   const center = useCallback((object: fabric.Object) => {
     const workspace = getWorkspace();
     const center = workspace?.getCenterPoint();
-    
+
     if (!center || !canvas) return;
 
     // @ts-ignore - Method exists but not typed in fabric types
@@ -60,12 +64,38 @@ export const useEditor = () => {
 
   const addToCanvas = useCallback((object: fabric.Object) => {
     if (!canvas) return;
-    
+
     center(object);
     canvas.add(object);
     canvas.setActiveObject(object);
     saveState();
   }, [canvas, center]);
+
+  // Get Active Colors
+  const getActiveFillColor = useCallback(() => {
+    const selectedObject = selectedObjects[0];
+
+    if (!selectedObject) {
+      return fillColor;
+    }
+
+    const value = selectedObject.get('fill') || fillColor;
+
+    // Currently gradients and patterns are not supported
+    // We know that only string is supported
+    return value as string;
+  }, [selectedObjects, fillColor]);
+
+  const getActiveStrokeColor = useCallback(() => {
+    const selectedObject = selectedObjects[0];
+
+    if (!selectedObject) {
+      return strokeColor;
+    }
+
+    const value = selectedObject.get('stroke') || strokeColor;
+    return value as string;
+  }, [selectedObjects, strokeColor]);
 
   // History Methods
   const saveState = useCallback(() => {
@@ -87,18 +117,18 @@ export const useEditor = () => {
   // Color Management Methods
   const changeFillColor = useCallback((value: string) => {
     setFillColor(value);
-    
+
     canvas?.getActiveObjects().forEach((object) => {
       object.set({ fill: value });
     });
-    
+
     canvas?.renderAll();
     saveState();
   }, [canvas, saveState]);
 
   const changeStrokeColor = useCallback((value: string) => {
     setStrokeColor(value);
-    
+
     canvas?.getActiveObjects().forEach((object) => {
       if (isTextType(object.type)) {
         object.set({ fill: value });
@@ -106,18 +136,18 @@ export const useEditor = () => {
       }
       object.set({ stroke: value });
     });
-    
+
     canvas?.renderAll();
     saveState();
   }, [canvas, saveState]);
 
   const changeStrokeWidth = useCallback((value: number) => {
     setStrokeWidth(value);
-    
+
     canvas?.getActiveObjects().forEach((object) => {
       object.set({ strokeWidth: value });
     });
-    
+
     canvas?.renderAll();
     saveState();
   }, [canvas, saveState]);
@@ -126,6 +156,7 @@ export const useEditor = () => {
   useCanvasEvents({
     canvas,
     setSelectedObjects,
+    clearSelectionCallback,
   });
 
   // Build and memoize editor interface
@@ -135,7 +166,7 @@ export const useEditor = () => {
     return {
       // Canvas reference
       canvas,
-      
+
       // Selection
       selectedObjects,
       isObjectSelected: () => canvas.getActiveObjects().length > 0,
@@ -145,9 +176,12 @@ export const useEditor = () => {
       changeFillColor,
       changeStrokeColor,
       changeStrokeWidth,
+      getActiveFillColor,
+      getActiveStrokeColor,      // Add this
       getFillColor: () => fillColor,
       getStrokeColor: () => strokeColor,
       getStrokeWidth: () => strokeWidth,
+
 
       // Shape Creation
       addCircle: () => {
@@ -199,7 +233,7 @@ export const useEditor = () => {
           { x: width, y: 0 },
           { x: width / 2, y: height }
         ];
-        
+
         const triangle = new fabric.Polygon(points, {
           ...TRIANGLE_OPTIONS,
           fill: fillColor,
@@ -217,7 +251,7 @@ export const useEditor = () => {
           { x: width / 2, y: height },
           { x: 0, y: height / 2 }
         ];
-        
+
         const diamond = new fabric.Polygon(points, {
           ...DIAMOND_OPTIONS,
           fill: fillColor,
@@ -237,12 +271,14 @@ export const useEditor = () => {
     changeFillColor,
     changeStrokeColor,
     changeStrokeWidth,
+    getActiveFillColor,
+    getActiveStrokeColor,
   ]);
 
   // Canvas initialization
-  const init = useCallback(({ 
-    canvasElement, 
-    container: containerElement 
+  const init = useCallback(({
+    canvasElement,
+    container: containerElement
   }: {
     canvasElement: HTMLCanvasElement;
     container: HTMLDivElement;

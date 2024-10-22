@@ -1,56 +1,43 @@
-// src/features/editor/components/fill-color-sidebar.tsx
-import { useEffect } from "react";
-import { Editor, FILL_COLOR } from "../types";
+import { Editor, STROKE_COLOR } from "../types";
 import { ToolSidebarClose } from "./tool-sidebar-close";
 import { ToolSidebarHeader } from "./tool-sidebar-header";
 import { ColorPicker } from "./color-picker";
-import { ActiveTool  } from "../active-types"
+import { ActiveTool } from "../active-types"
 
 import { cn } from "../../../lib/utils";
 import { ScrollArea } from "../../../components/ui/scroll-area";
 
-interface FillColorSidebarProps {
+interface StrokeColorSidebarProps {
   editor: Editor | undefined;
   activeTool: ActiveTool;
   onChangeActiveTool: (tool: ActiveTool) => void;
 }
 
-export const FillColorSidebar = ({
+export const StrokeColorSidebar = ({
   editor,
   activeTool,
   onChangeActiveTool,
-}: FillColorSidebarProps) => {
-  // Check if any objects are selected
-  const hasSelection = editor?.isObjectSelected();
-  
-  // Close sidebar if no selection and fill tool is active
-  useEffect(() => {
-    if (!hasSelection && activeTool === "fill") {
-      onChangeActiveTool("select");
-    }
-  }, [hasSelection, activeTool, onChangeActiveTool]);
-
-  // Get current fill color or use default
-  const value = editor?.getActiveFillColor() || FILL_COLOR;
+}: StrokeColorSidebarProps) => {
+  const value = editor?.getActiveStrokeColor() || STROKE_COLOR;
 
   const onClose = () => {
     onChangeActiveTool("select");
   };
 
   const onChange = (value: string) => {
-    editor?.changeFillColor(value);
+    editor?.changeStrokeColor(value);
   };
 
   return (
     <aside
       className={cn(
         "bg-white relative border-r z-[40] w-[360px] h-full flex flex-col",
-        activeTool === "fill" ? "visible" : "hidden",
+        activeTool === "stroke-color" ? "visible" : "hidden",
       )}
     >
       <ToolSidebarHeader
-        title="Fill color"
-        description="Add fill color to your element"
+        title="Stroke color"
+        description="Add stroke color to your element"
       />
       <ScrollArea>
         <div className="p-4 space-y-6">
