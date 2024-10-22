@@ -5,6 +5,7 @@ import { useEditor } from '../hooks/use-editor';
 import { Navbar } from './navbar';
 import { Sidebar } from './sidebar';
 import { ActiveTool } from '../active-types';
+import { ShapeSidebar } from './shape-sidebar';
 
 export const Editor = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -46,25 +47,29 @@ export const Editor = () => {
 
   return (
     <div className="h-full flex flex-col">
-      <Navbar 
-        activeTool={activeTool} 
-        onChangeActiveTool={onChangeActiveTool} 
+    <Navbar 
+      activeTool={activeTool} 
+      onChangeActiveTool={onChangeActiveTool} 
+    />
+    <div className="flex-1 flex">
+      <Sidebar 
+        activeTool={activeTool}
+        onChangeActiveTool={onChangeActiveTool}
       />
-      <div className="flex-1 flex">
-        <Sidebar 
-          activeTool={activeTool}
-          onChangeActiveTool={onChangeActiveTool}
+      <ShapeSidebar
+        activeTool={activeTool}
+        onChangeActiveTool={onChangeActiveTool}
+      />
+      <div 
+        ref={containerRef} 
+        className="flex-1 bg-muted relative overflow-hidden"
+      >
+        <canvas 
+          ref={canvasRef}
+          className="absolute inset-0 w-full h-full"
         />
-        <div 
-          ref={containerRef} 
-          className="flex-1 bg-muted relative overflow-hidden"
-        >
-          <canvas 
-            ref={canvasRef}
-            className="absolute inset-0 w-full h-full"
-          />
-        </div>
       </div>
     </div>
+  </div>
   );
 };
