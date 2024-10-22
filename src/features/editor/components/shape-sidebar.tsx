@@ -1,10 +1,10 @@
-// src/features/editor/components/shape-sidebar.tsx
 import { ScrollArea } from "../../../components/ui/scroll-area";
 import { ToolSidebarHeader } from "./tool-sidebar-header";
 import { ToolSidebarClose } from "./tool-sidebar-close";
 import { ShapeTool } from "./shape-tool";
 import { cn } from "../../../lib/utils";
 import { ActiveTool } from "../active-types";
+import { Editor } from "../types";
 import { 
   Circle,
   Square,
@@ -15,11 +15,13 @@ import {
 interface ShapeSidebarProps {
   activeTool: ActiveTool;
   onChangeActiveTool: (tool: ActiveTool) => void;
+  editor: Editor | undefined;
 }
 
 export const ShapeSidebar = ({
   activeTool,
   onChangeActiveTool,
+  editor,
 }: ShapeSidebarProps) => {
   const onClose = () => {
     onChangeActiveTool("select");
@@ -39,29 +41,29 @@ export const ShapeSidebar = ({
       <ScrollArea>
         <div className="grid grid-cols-3 gap-4 p-4">
           <ShapeTool
-            onClick={() => {}} // Will be implemented later
+            onClick={() => editor?.addCircle()}
             icon={Circle}
           />
           <ShapeTool
-            onClick={() => {}}
+            onClick={() => editor?.addSoftRectangle()}
             icon={Square}
           />
           <ShapeTool
-            onClick={() => {}}
+            onClick={() => editor?.addRectangle()}
             icon={Square}
-            iconClassName="fill-current" // For filled square
+            iconClassName="fill-current"
           />
           <ShapeTool
-            onClick={() => {}}
+            onClick={() => editor?.addTriangle()}
             icon={Triangle}
           />
           <ShapeTool
-            onClick={() => {}}
+            onClick={() => editor?.addInverseTriangle()}
             icon={Triangle}
             iconClassName="rotate-180"
           />
           <ShapeTool
-            onClick={() => {}}
+            onClick={() => editor?.addDiamond()}
             icon={Diamond}
           />
         </div>

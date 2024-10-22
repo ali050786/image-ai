@@ -12,23 +12,12 @@ export const Editor = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeTool, setActiveTool] = useState<ActiveTool>("select");
   
-  const { init } = useEditor();
+  const { init, editor } = useEditor();
 
   const onChangeActiveTool = useCallback((tool: ActiveTool) => {
-    // If clicking same tool, reset to select
     if (tool === activeTool) {
       return setActiveTool("select");
     }
-
-    // Handle special case for draw tool
-    if (tool === "draw") {
-      // TODO: Enable draw mode
-    }
-
-    if (activeTool === "draw") {
-      // TODO: Disable draw mode
-    }
-
     setActiveTool(tool);
   }, [activeTool]);
 
@@ -47,29 +36,30 @@ export const Editor = () => {
 
   return (
     <div className="h-full flex flex-col">
-    <Navbar 
-      activeTool={activeTool} 
-      onChangeActiveTool={onChangeActiveTool} 
-    />
-    <div className="flex-1 flex">
-      <Sidebar 
-        activeTool={activeTool}
-        onChangeActiveTool={onChangeActiveTool}
+      <Navbar 
+        activeTool={activeTool} 
+        onChangeActiveTool={onChangeActiveTool} 
       />
-      <ShapeSidebar
-        activeTool={activeTool}
-        onChangeActiveTool={onChangeActiveTool}
-      />
-      <div 
-        ref={containerRef} 
-        className="flex-1 bg-muted relative overflow-hidden"
-      >
-        <canvas 
-          ref={canvasRef}
-          className="absolute inset-0 w-full h-full"
+      <div className="flex-1 flex">
+        <Sidebar 
+          activeTool={activeTool}
+          onChangeActiveTool={onChangeActiveTool}
         />
+        <ShapeSidebar
+          editor={editor}
+          activeTool={activeTool}
+          onChangeActiveTool={onChangeActiveTool}
+        />
+        <div 
+          ref={containerRef} 
+          className="flex-1 bg-muted relative overflow-hidden"
+        >
+          <canvas 
+            ref={canvasRef}
+            className="absolute inset-0 w-full h-full"
+          />
+        </div>
       </div>
     </div>
-  </div>
   );
 };
