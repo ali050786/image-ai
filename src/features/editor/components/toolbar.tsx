@@ -5,6 +5,8 @@ import { cn } from "../../../lib/utils";
 import { Button } from "../../../components/ui/button";
 import { Hint } from "../../../components/hint";
 import { ActiveTool } from "../active-types";
+import { BsBorderWidth } from "react-icons/bs";
+import { BringToFrontIcon, SendToBackIcon } from "lucide-react";
 
 interface ToolbarProps {
   editor: Editor | undefined;
@@ -81,6 +83,55 @@ export const Toolbar = ({
               </Button>
             </Hint>
           </div>
+          <div className="flex items-center h-full justify-center">
+            <Hint 
+              label={isMultipleSelection ? "Change all stroke colors" : "Stroke color"} 
+              side="bottom" 
+              sideOffset={5}
+            >
+              <Button
+                onClick={() => onChangeActiveTool("stroke-width")}
+                size="icon"
+                variant="ghost"
+                className={cn(
+                  activeTool === "stroke-width" && "bg-gray-100"
+                )}
+              >
+               <BsBorderWidth className="size-4"/>
+              </Button>
+            </Hint>
+          </div>
+          <div className="flex items-center h-full justify-center">
+  <Hint 
+    label="Bring Forward"
+    side="bottom" 
+    sideOffset={5}
+  >
+    <Button
+      onClick={() => editor?.bringForward()}
+      size="icon"
+      variant="ghost"
+    >
+      <BringToFrontIcon className="size-4"/>
+    </Button>
+  </Hint>
+</div>
+
+<div className="flex items-center h-full justify-center">
+  <Hint 
+    label="Send Backwards"
+    side="bottom" 
+    sideOffset={5}
+  >
+    <Button
+      onClick={() => editor?.sendBackwards()}
+      size="icon"
+      variant="ghost"
+    >
+      <SendToBackIcon className="size-4"/>
+    </Button>
+  </Hint>
+</div>
         </>
       )}
     </div>

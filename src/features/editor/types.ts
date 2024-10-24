@@ -11,13 +11,24 @@ export interface Editor {
 
   // Color management methods
   getFillColor: () => string;
-  getStrokeColor: () => string;
   getStrokeWidth: () => number;
   changeFillColor: (value: string) => void;
   changeStrokeColor: (value: string) => void;
   changeStrokeWidth: (value: number) => void;
   getActiveFillColor: () => string;
-  getActiveStrokeColor: () => string;  // Add this line
+  getActiveStrokeColor: () => string;
+  getActiveStrokeWidth: () => number;  // Add this line
+
+  getActiveStrokeDashArray: () => number[];
+  getActiveStrokeLineJoin: () => string;
+  getActiveStrokeLineCap: () => string;
+  changeStrokeDashArray: (value: number[]) => void;
+  changeStrokeLineJoin: (value: string) => void;
+  changeStrokeLineCap: (value: string) => void;
+
+
+  bringForward: () => void;
+  sendBackwards: () => void;
 
   // Shape creation methods
   addCircle: () => void;

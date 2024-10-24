@@ -97,6 +97,19 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
     return value as string;
   }, [selectedObjects, strokeColor]);
 
+  const getActiveStrokeWidth = useCallback(() => {
+    const selectedObject = selectedObjects[0];
+
+    if (!selectedObject) {
+      return strokeWidth;
+    }
+
+    const value = selectedObject.get('strokeWidth') || strokeWidth;
+    return value
+  }, [strokeWidth]);
+
+  
+
   // History Methods
   const saveState = useCallback(() => {
     if (!canvas) return;
@@ -136,6 +149,11 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
       }
       object.set({ stroke: value });
     });
+
+
+    
+  
+    
 
     canvas?.renderAll();
     saveState();
@@ -177,11 +195,89 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
       changeStrokeColor,
       changeStrokeWidth,
       getActiveFillColor,
-      getActiveStrokeColor,      // Add this
+      getActiveStrokeColor,
+      getActiveStrokeWidth,    // Add this
       getFillColor: () => fillColor,
       getStrokeColor: () => strokeColor,
       getStrokeWidth: () => strokeWidth,
 
+
+      getActiveStrokeDashArray: () => {
+        const selectedObject = selectedObjects[0];
+        if (!selectedObject) {
+          return [];
+        }
+        return selectedObject.get('strokeDashArray') || [];
+      },
+      bringForward: () => {
+        // Bring all selected objects forward
+        canvas.getActiveObjects().forEach((object) => {
+          canvas.bringForward(object);
+        });
+  
+        canvas.renderAll();
+        
+        // Make sure workspace stays in back
+        const workspace = getWorkspace();
+        workspace?.sendToBack();
+        
+        saveState();
+      },
+  
+      sendBackwards: () => {
+        // Send all selected objects backwards
+        canvas.getActiveObjects().forEach((object) => {
+          canvas.sendBackwards(object);
+        });
+  
+        canvas.renderAll();
+        
+        // Make sure workspace stays in back
+        const workspace = getWorkspace(); 
+        workspace?.sendToBack();
+        
+        saveState();
+      },
+      
+      getActiveStrokeLineJoin: () => {
+        const selectedObject = selectedObjects[0];
+        if (!selectedObject) {
+          return 'miter';
+        }
+        return selectedObject.get('strokeLineJoin') || 'miter';
+      },
+      
+      getActiveStrokeLineCap: () => {
+        const selectedObject = selectedObjects[0];
+        if (!selectedObject) {
+          return 'butt';
+        }
+        return selectedObject.get('strokeLineCap') || 'butt';
+      },
+      
+      changeStrokeDashArray: (value: number[]) => {
+        canvas?.getActiveObjects().forEach((object) => {
+          object.set({ strokeDashArray: value });
+        });
+        canvas?.renderAll();
+        saveState();
+      },
+      
+      changeStrokeLineJoin: (value: string) => {
+        canvas?.getActiveObjects().forEach((object) => {
+          object.set({ strokeLineJoin: value });
+        });
+        canvas?.renderAll();
+        saveState();
+      },
+      
+      changeStrokeLineCap: (value: string) => {
+        canvas?.getActiveObjects().forEach((object) => {
+          object.set({ strokeLineCap: value });
+        });
+        canvas?.renderAll();
+        saveState();
+      },
 
       // Shape Creation
       addCircle: () => {
@@ -273,6 +369,7 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
     changeStrokeWidth,
     getActiveFillColor,
     getActiveStrokeColor,
+    getActiveStrokeWidth
   ]);
 
   // Canvas initialization
