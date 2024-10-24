@@ -11,12 +11,13 @@ import { FillColorSidebar } from './fill-color-sidebar';
 import { Toolbar } from './toolbar';
 import { StrokeColorSidebar } from './stroke-color-sidebar';
 import { StrokeWidthSidebar } from './stroke-width-sidebar';
+import { OpacitySidebar } from './opacity-sidebar';
 
 export const Editor = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeTool, setActiveTool] = useState<ActiveTool>("select");
-  
+
   const { init, editor } = useEditor();
 
   const onChangeActiveTool = useCallback((tool: ActiveTool) => {
@@ -41,12 +42,12 @@ export const Editor = () => {
 
   return (
     <div className="h-full flex flex-col">
-      <Navbar 
-        activeTool={activeTool} 
-        onChangeActiveTool={onChangeActiveTool} 
+      <Navbar
+        activeTool={activeTool}
+        onChangeActiveTool={onChangeActiveTool}
       />
       <div className="flex-1 flex">
-        <Sidebar 
+        <Sidebar
           activeTool={activeTool}
           onChangeActiveTool={onChangeActiveTool}
         />
@@ -70,17 +71,22 @@ export const Editor = () => {
           activeTool={activeTool}
           onChangeActiveTool={onChangeActiveTool}
         />
+        <OpacitySidebar
+          editor={editor}
+          activeTool={activeTool}
+          onChangeActiveTool={onChangeActiveTool}
+        />
         <div className="flex-1 flex flex-col bg-muted relative overflow-hidden">
           <Toolbar
             editor={editor}
             activeTool={activeTool}
             onChangeActiveTool={onChangeActiveTool}
           />
-          <div 
-            ref={containerRef} 
+          <div
+            ref={containerRef}
             className="flex-1 relative"
           >
-            <canvas 
+            <canvas
               ref={canvasRef}
               className="absolute inset-0 w-full h-full"
             />

@@ -4,10 +4,13 @@ import { fabric } from 'fabric';
 export interface Editor {
   canvas: fabric.Canvas;
   selectedObjects: fabric.Object[];
-  
+
   // Selection methods
   isObjectSelected: () => boolean;
   getActiveObjects: () => fabric.Object[];
+
+  getActiveOpacity: () => number;
+  changeOpacity: (value: number) => void;
 
   // Color management methods
   getFillColor: () => string;

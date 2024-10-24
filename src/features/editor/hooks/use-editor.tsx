@@ -254,6 +254,22 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
         }
         return selectedObject.get('strokeLineCap') || 'butt';
       },
+
+      getActiveOpacity: () => {
+        const selectedObject = selectedObjects[0];
+        if (!selectedObject) {
+          return 1; // Default opacity
+        }
+        return selectedObject.get('opacity') || 1;
+      },
+  
+      changeOpacity: (value: number) => {
+        canvas.getActiveObjects().forEach((object) => {
+          object.set({ opacity: value });
+        });
+        canvas.renderAll();
+        saveState();
+      },
       
       changeStrokeDashArray: (value: number[]) => {
         canvas?.getActiveObjects().forEach((object) => {
