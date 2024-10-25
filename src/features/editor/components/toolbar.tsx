@@ -6,8 +6,8 @@ import { Button } from "../../../components/ui/button";
 import { Hint } from "../../../components/hint";
 import { ActiveTool } from "../active-types";
 import { BsBorderWidth } from "react-icons/bs";
-import { 
-  BringToFrontIcon, 
+import {
+  BringToFrontIcon,
   SendToBackIcon,
   AlignLeft,
   AlignCenter,
@@ -15,15 +15,19 @@ import {
   Bold,
   Italic,
   Underline,
-  Strikethrough
+  Strikethrough,
+  DeleteIcon,
+  Trash2Icon,
+  ArrowUpFromLine,
+  ArrowDownFromLine
 } from "lucide-react";
 import { RxTransparencyGrid } from "react-icons/rx";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from "../../../components/ui/select";
 import { fonts } from "../types";
 import { Label } from "../../../components/ui/label";
@@ -42,6 +46,16 @@ export const Toolbar = ({
   activeTool,
   onChangeActiveTool,
 }: ToolbarProps) => {
+
+
+  const getFontWeight = () => editor?.getActiveFontWeight() ?? 400;
+  const getFontStyle = () => editor?.getActiveFontStyle() ?? "normal";
+  const getTextAlign = () => editor?.getActiveTextAlign() ?? "left";
+  const getFontUnderline = () => editor?.getActiveFontUnderline() ?? false;
+  const getFontLinethrough = () => editor?.getActiveFontLinethrough() ?? false;
+  const getFontFamily = () => editor?.getActiveFontFamily() ?? "Arial";
+  const getFontSize = () => editor?.getActiveFontSize() ?? 32;
+
   const hasSelection = editor?.isObjectSelected();
 
   if (!hasSelection) {
@@ -107,7 +121,7 @@ export const Toolbar = ({
           </div>
           <div className="flex items-center h-full justify-center">
             <Hint
-              label="Stroke width"
+              label="Stroke width Options"
               side="bottom"
               sideOffset={5}
             >
@@ -128,19 +142,19 @@ export const Toolbar = ({
       {isText && (
         <>
           <Separator orientation="vertical" className="h-8" />
-          
+
           {/* Font Family */}
           <Select
-            value={editor?.getActiveFontFamily()}
-            onValueChange={editor?.changeFontFamily}
+            value={getFontFamily()}
+            onValueChange={(value) => editor?.changeFontFamily(value)}
           >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Font Family" />
             </SelectTrigger>
             <SelectContent>
               {fonts.map((font) => (
-                <SelectItem 
-                  key={font} 
+                <SelectItem
+                  key={font}
                   value={font}
                   style={{ fontFamily: font }}
                 >
@@ -158,7 +172,7 @@ export const Toolbar = ({
               min={8}
               max={200}
               step={1}
-              value={[editor?.getActiveFontSize() || 32]}
+              value={[getFontSize()]}
               onValueChange={([value]) => editor?.changeFontSize(value)}
             />
           </div>
@@ -168,21 +182,21 @@ export const Toolbar = ({
           {/* Text Alignment */}
           <div className="flex items-center gap-x-1">
             <Button
-              variant={editor?.getActiveTextAlign() === "left" ? "default" : "ghost"}
+              variant={getTextAlign() === "left" ? "default" : "ghost"}
               size="icon"
               onClick={() => editor?.changeTextAlign("left")}
             >
               <AlignLeft className="h-4 w-4" />
             </Button>
             <Button
-              variant={editor?.getActiveTextAlign() === "center" ? "default" : "ghost"}
+              variant={getTextAlign() === "center" ? "default" : "ghost"}
               size="icon"
               onClick={() => editor?.changeTextAlign("center")}
             >
               <AlignCenter className="h-4 w-4" />
             </Button>
             <Button
-              variant={editor?.getActiveTextAlign() === "right" ? "default" : "ghost"}
+              variant={getTextAlign() === "right" ? "default" : "ghost"}
               size="icon"
               onClick={() => editor?.changeTextAlign("right")}
             >
@@ -194,35 +208,37 @@ export const Toolbar = ({
 
           {/* Text Style */}
           <div className="flex items-center gap-x-1">
-          <Button
-              variant={editor?.getActiveFontWeight() > 500 ? "default" : "ghost"}
+            <Button
+              variant={getFontWeight() > 500 ? "default" : "ghost"}
               size="icon"
-              onClick={() => editor?.changeFontWeight(
-                editor.getActiveFontWeight() > 500 ? 400 : 700
-              )}
+              onClick={() => {
+                const newWeight = getFontWeight() > 500 ? 400 : 700;
+                editor?.changeFontWeight(newWeight);
+              }}
             >
               <Bold className="h-4 w-4" />
             </Button>
             <Button
-              variant={editor?.getActiveFontStyle() === "italic" ? "default" : "ghost"}
+              variant={getFontStyle() === "italic" ? "default" : "ghost"}
               size="icon"
-              onClick={() => editor?.changeFontStyle(
-                editor.getActiveFontStyle() === "italic" ? "normal" : "italic"
-              )}
+              onClick={() => {
+                const newStyle = getFontStyle() === "italic" ? "normal" : "italic";
+                editor?.changeFontStyle(newStyle);
+              }}
             >
               <Italic className="h-4 w-4" />
             </Button>
             <Button
-              variant={editor?.getActiveFontUnderline() ? "default" : "ghost"}
+              variant={getFontUnderline() ? "default" : "ghost"}
               size="icon"
-              onClick={() => editor?.changeFontUnderline(!editor.getActiveFontUnderline())}
+              onClick={() => editor?.changeFontUnderline(!getFontUnderline())}
             >
               <Underline className="h-4 w-4" />
             </Button>
             <Button
-              variant={editor?.getActiveFontLinethrough() ? "default" : "ghost"}
+              variant={getFontLinethrough() ? "default" : "ghost"}
               size="icon"
-              onClick={() => editor?.changeFontLinethrough(!editor.getActiveFontLinethrough())}
+              onClick={() => editor?.changeFontLinethrough(!getFontLinethrough())}
             >
               <Strikethrough className="h-4 w-4" />
             </Button>
@@ -230,9 +246,10 @@ export const Toolbar = ({
         </>
       )}
 
+
       {/* Common Controls - Show for all objects */}
       <Separator orientation="vertical" className="h-8" />
-      
+
       <div className="flex items-center gap-x-1">
         <Hint label="Bring Forward" side="bottom" sideOffset={5}>
           <Button
@@ -240,7 +257,7 @@ export const Toolbar = ({
             size="icon"
             variant="ghost"
           >
-            <BringToFrontIcon className="size-4" />
+            <ArrowUpFromLine className="size-4" />
           </Button>
         </Hint>
 
@@ -250,7 +267,7 @@ export const Toolbar = ({
             size="icon"
             variant="ghost"
           >
-            <SendToBackIcon className="size-4" />
+            <ArrowDownFromLine className="size-4" />
           </Button>
         </Hint>
 
@@ -262,6 +279,15 @@ export const Toolbar = ({
             className={cn(activeTool === "opacity" && "bg-gray-100")}
           >
             <RxTransparencyGrid className="size-4" />
+          </Button>
+        </Hint>
+        <Hint label="Delete" side="bottom" sideOffset={5}>
+          <Button
+            onClick={() => editor?.delete()}
+            size="icon"
+            variant="ghost"
+          >
+            <Trash2Icon className="size-4" />
           </Button>
         </Hint>
       </div>

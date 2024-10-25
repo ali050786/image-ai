@@ -20,7 +20,7 @@ export interface Editor {
   // Selection methods
   isObjectSelected: () => boolean;
   getActiveObjects: () => fabric.Object[];
-
+  delete: () => void;
   getActiveOpacity: () => number;
   changeOpacity: (value: number) => void;
 
