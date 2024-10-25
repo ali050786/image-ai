@@ -1,7 +1,7 @@
 // src/features/editor/hooks/use-editor.tsx
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { fabric } from 'fabric';
-
+import { FontStyle, TextAlign } from '../types';
 import {
   Editor,
   FILL_COLOR,
@@ -10,11 +10,15 @@ import {
   CIRCLE_OPTIONS,
   RECTANGLE_OPTIONS,
   TRIANGLE_OPTIONS,
-  DIAMOND_OPTIONS
+  DIAMOND_OPTIONS,
+  TEXT_OPTIONS,
+  FONT_SIZE,
+  FONT_FAMILY,
 } from '../types';
 import { useAutoResize } from './use-auto-resize';
 import { useCanvasEvents } from './use-canvas-events';
 import { isTextType } from '../utils';
+import { TextObject } from '../types';
 
 interface CanvasHistory {
   states: string[];
@@ -108,7 +112,7 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
     return value
   }, [strokeWidth]);
 
-  
+
 
   // History Methods
   const saveState = useCallback(() => {
@@ -151,9 +155,9 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
     });
 
 
-    
-  
-    
+
+
+
 
     canvas?.renderAll();
     saveState();
@@ -214,31 +218,31 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
         canvas.getActiveObjects().forEach((object) => {
           canvas.bringForward(object);
         });
-  
+
         canvas.renderAll();
-        
+
         // Make sure workspace stays in back
         const workspace = getWorkspace();
         workspace?.sendToBack();
-        
+
         saveState();
       },
-  
+
       sendBackwards: () => {
         // Send all selected objects backwards
         canvas.getActiveObjects().forEach((object) => {
           canvas.sendBackwards(object);
         });
-  
+
         canvas.renderAll();
-        
+
         // Make sure workspace stays in back
-        const workspace = getWorkspace(); 
+        const workspace = getWorkspace();
         workspace?.sendToBack();
-        
+
         saveState();
       },
-      
+
       getActiveStrokeLineJoin: () => {
         const selectedObject = selectedObjects[0];
         if (!selectedObject) {
@@ -246,7 +250,7 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
         }
         return selectedObject.get('strokeLineJoin') || 'miter';
       },
-      
+
       getActiveStrokeLineCap: () => {
         const selectedObject = selectedObjects[0];
         if (!selectedObject) {
@@ -262,7 +266,141 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
         }
         return selectedObject.get('opacity') || 1;
       },
-  
+
+      addText: (value: string, options: Partial<fabric.ITextboxOptions> = {}) => {
+        const object = new fabric.Textbox(value, {
+          ...TEXT_OPTIONS,
+          fill: fillColor,
+          ...options
+        });
+        addToCanvas(object);
+      },
+      changeTextAlign: (value: TextAlign) => {
+        canvas.getActiveObjects().forEach((object) => {
+          if (isTextType(object.type)) {
+            (object as TextObject).set({ textAlign: value });
+          }
+        });
+        canvas.renderAll();
+        saveState();
+      },
+    
+      getActiveTextAlign: () => {
+        const selectedObject = selectedObjects[0] as TextObject;
+        if (!selectedObject || !isTextType(selectedObject.type)) {
+          return "left" as TextAlign;
+        }
+        return (selectedObject.textAlign || "left") as TextAlign;
+      },
+    
+      changeFontFamily: (value: string) => {
+        canvas.getActiveObjects().forEach((object) => {
+          if (isTextType(object.type)) {
+            (object as TextObject).set({ fontFamily: value });
+          }
+        });
+        canvas.renderAll();
+        saveState();
+      },
+    
+      getActiveFontFamily: () => {
+        const selectedObject = selectedObjects[0] as TextObject;
+        if (!selectedObject || !isTextType(selectedObject.type)) {
+          return FONT_FAMILY;
+        }
+        return selectedObject.fontFamily || FONT_FAMILY;
+      },
+    
+      changeFontStyle: (value: FontStyle) => {
+        canvas.getActiveObjects().forEach((object) => {
+          if (isTextType(object.type)) {
+            (object as TextObject).set({ fontStyle: value });
+          }
+        });
+        canvas.renderAll();
+        saveState();
+      },
+    
+      getActiveFontStyle: () => {
+        const selectedObject = selectedObjects[0] as TextObject;
+        if (!selectedObject || !isTextType(selectedObject.type)) {
+          return "normal" as FontStyle;
+        }
+        return (selectedObject.fontStyle || "normal") as FontStyle;
+      },
+    
+      changeFontWeight: (value: number) => {
+        canvas.getActiveObjects().forEach((object) => {
+          if (isTextType(object.type)) {
+            (object as TextObject).set({ fontWeight: value });
+          }
+        });
+        canvas.renderAll();
+        saveState();
+      },
+    
+      getActiveFontWeight: () => {
+        const selectedObject = selectedObjects[0] as TextObject;
+        if (!selectedObject || !isTextType(selectedObject.type)) {
+          return 400;
+        }
+        return selectedObject.fontWeight || 400;
+      },
+    
+      changeFontUnderline: (value: boolean) => {
+        canvas.getActiveObjects().forEach((object) => {
+          if (isTextType(object.type)) {
+            (object as TextObject).set({ underline: value });
+          }
+        });
+        canvas.renderAll();
+        saveState();
+      },
+    
+      getActiveFontUnderline: () => {
+        const selectedObject = selectedObjects[0] as TextObject;
+        if (!selectedObject || !isTextType(selectedObject.type)) {
+          return false;
+        }
+        return selectedObject.underline || false;
+      },
+    
+      changeFontLinethrough: (value: boolean) => {
+        canvas.getActiveObjects().forEach((object) => {
+          if (isTextType(object.type)) {
+            (object as TextObject).set({ linethrough: value });
+          }
+        });
+        canvas.renderAll();
+        saveState();
+      },
+    
+      getActiveFontLinethrough: () => {
+        const selectedObject = selectedObjects[0] as TextObject;
+        if (!selectedObject || !isTextType(selectedObject.type)) {
+          return false;
+        }
+        return selectedObject.linethrough || false;
+      },
+
+      changeFontSize: (value: number) => {
+        canvas.getActiveObjects().forEach((object) => {
+          if (isTextType(object.type)) {
+            (object as TextObject).set({ fontSize: value });
+          }
+        });
+        canvas.renderAll();
+        saveState();
+      },
+      
+      getActiveFontSize: () => {
+        const selectedObject = selectedObjects[0] as TextObject;
+        if (!selectedObject || !isTextType(selectedObject.type)) {
+          return FONT_SIZE;
+        }
+        return selectedObject.fontSize || FONT_SIZE;
+      },
+
       changeOpacity: (value: number) => {
         canvas.getActiveObjects().forEach((object) => {
           object.set({ opacity: value });
@@ -270,7 +408,7 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
         canvas.renderAll();
         saveState();
       },
-      
+
       changeStrokeDashArray: (value: number[]) => {
         canvas?.getActiveObjects().forEach((object) => {
           object.set({ strokeDashArray: value });
@@ -278,7 +416,7 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
         canvas?.renderAll();
         saveState();
       },
-      
+
       changeStrokeLineJoin: (value: string) => {
         canvas?.getActiveObjects().forEach((object) => {
           object.set({ strokeLineJoin: value });
@@ -286,7 +424,7 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
         canvas?.renderAll();
         saveState();
       },
-      
+
       changeStrokeLineCap: (value: string) => {
         canvas?.getActiveObjects().forEach((object) => {
           object.set({ strokeLineCap: value });

@@ -1,4 +1,5 @@
-import { useEffect, useCallback } from 'react';
+// src/features/editor/hooks/use-auto-resize.ts
+import { useEffect, useCallback, useRef } from 'react';
 import { fabric } from 'fabric';
 
 interface UseAutoResizeProps {
@@ -7,83 +8,103 @@ interface UseAutoResizeProps {
 }
 
 export const useAutoResize = ({ canvas, container }: UseAutoResizeProps) => {
+  // Add a debounce timer ref
+  const resizeTimer = useRef<number>();
+  const isResizing = useRef(false);
+
   const autoZoom = useCallback(() => {
-    if (!canvas || !container) return;
+    if (!canvas || !container || isResizing.current) return;
 
-    // Get container dimensions
-    const width = container.offsetWidth;
-    const height = container.offsetHeight;
+    try {
+      isResizing.current = true;
 
-    // Update canvas dimensions
-    canvas.setWidth(width);
-    canvas.setHeight(height);
+      const width = container.offsetWidth;
+      const height = container.offsetHeight;
 
-    // Get canvas center
-    const center = canvas.getCenter();
+      canvas.setWidth(width);
+      canvas.setHeight(height);
 
-    // Define zoom ratio
-    const zoomRatio = 0.85;
+      const center = canvas.getCenter();
+      const zoomRatio = 0.85;
 
-    // Find workspace
-    const localWorkspace = canvas
-      .getObjects()
-      .find((object) => object.name === "clip");
+      const localWorkspace = canvas
+        .getObjects()
+        .find((object) => object.name === "clip");
 
-    if (!localWorkspace) return;
+      if (!localWorkspace) {
+        isResizing.current = false;
+        return;
+      }
 
-    // @ts-ignore - Method exists but not in types
-    const scale = fabric.util.findScaleToFit(localWorkspace, {
-      width,
-      height,
-    });
+      // @ts-ignore
+      const scale = fabric.util.findScaleToFit(localWorkspace, {
+        width,
+        height,
+      });
 
-    // Calculate zoom
-    const zoom = zoomRatio * scale;
+      const zoom = zoomRatio * scale;
 
-    // Reset viewport and apply zoom
-    canvas.setViewportTransform(fabric.iMatrix.concat());
-    canvas.zoomToPoint(new fabric.Point(center.left, center.top), zoom);
+      canvas.setViewportTransform(fabric.iMatrix.concat());
+      canvas.zoomToPoint(new fabric.Point(center.left, center.top), zoom);
 
-    // Get workspace center
-    const workspaceCenter = localWorkspace.getCenterPoint();
-    const viewportTransform = canvas.viewportTransform;
+      const workspaceCenter = localWorkspace.getCenterPoint();
+      const viewportTransform = canvas.viewportTransform;
 
-    if (
-      canvas.width === undefined ||
-      canvas.height === undefined ||
-      !viewportTransform
-    ) {
-      return;
+      if (
+        canvas.width === undefined ||
+        canvas.height === undefined ||
+        !viewportTransform
+      ) {
+        isResizing.current = false;
+        return;
+      }
+
+      viewportTransform[4] = canvas.width / 2 - workspaceCenter.x * viewportTransform[0];
+      viewportTransform[5] = canvas.height / 2 - workspaceCenter.y * viewportTransform[3];
+
+      canvas.setViewportTransform(viewportTransform);
+
+      localWorkspace.clone((cloned: fabric.Rect) => {
+        if (canvas.clipPath !== cloned) {
+          canvas.clipPath = cloned;
+          canvas.requestRenderAll();
+        }
+        isResizing.current = false;
+      });
+    } catch (error) {
+      console.error("Error in autoZoom:", error);
+      isResizing.current = false;
     }
-
-    // Calculate new transform values
-    viewportTransform[4] = canvas.width / 2 - workspaceCenter.x * viewportTransform[0];
-    viewportTransform[5] = canvas.height / 2 - workspaceCenter.y * viewportTransform[3];
-
-    // Apply new transform
-    canvas.setViewportTransform(viewportTransform);
-
-    // Clone and update clipPath
-    localWorkspace.clone((cloned: fabric.Rect) => {
-      canvas.clipPath = cloned;
-      canvas.requestRenderAll();
-    });
   }, [canvas, container]);
 
   useEffect(() => {
     let resizeObserver: ResizeObserver | null = null;
 
-    if (canvas && container) {
-      resizeObserver = new ResizeObserver(() => {
-        autoZoom();
-      });
+    const handleResize = () => {
+      // Clear existing timer
+      if (resizeTimer.current) {
+        window.clearTimeout(resizeTimer.current);
+      }
 
+      // Set new timer
+      resizeTimer.current = window.setTimeout(() => {
+        if (!isResizing.current) {
+          autoZoom();
+        }
+      }, 100); // Debounce time of 100ms
+    };
+
+    if (canvas && container) {
+      resizeObserver = new ResizeObserver(handleResize);
       resizeObserver.observe(container);
     }
 
     return () => {
       if (resizeObserver) {
         resizeObserver.disconnect();
+      }
+      if (resizeTimer.current) {
+        window.clearTimeout(resizeTimer.current);
       }
     };
   }, [canvas, container, autoZoom]);
