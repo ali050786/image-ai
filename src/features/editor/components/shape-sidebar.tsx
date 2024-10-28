@@ -43,10 +43,12 @@ export const ShapeSidebar = ({
           <ShapeTool
             onClick={() => editor?.addCircle()}
             icon={Circle}
+            iconClassName="fill-current"
           />
           <ShapeTool
             onClick={() => editor?.addSoftRectangle()}
             icon={Square}
+            iconClassName="fill-current"
           />
           <ShapeTool
             onClick={() => editor?.addRectangle()}
@@ -56,15 +58,17 @@ export const ShapeSidebar = ({
           <ShapeTool
             onClick={() => editor?.addTriangle()}
             icon={Triangle}
+            iconClassName="fill-current"
           />
           <ShapeTool
             onClick={() => editor?.addInverseTriangle()}
             icon={Triangle}
-            iconClassName="rotate-180"
+            iconClassName="rotate-180 fill-current"
           />
           <ShapeTool
             onClick={() => editor?.addDiamond()}
             icon={Diamond}
+            iconClassName="fill-current"
           />
         </div>
       </ScrollArea>

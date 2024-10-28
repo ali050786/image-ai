@@ -19,6 +19,8 @@ import { useAutoResize } from './use-auto-resize';
 import { useCanvasEvents } from './use-canvas-events';
 import { isTextType } from '../utils';
 import { TextObject } from '../types';
+import { backgroundApi } from '../api/background';
+import { useToast } from './use-toast';
 
 interface CanvasHistory {
   states: string[];
@@ -38,9 +40,14 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
   const [fillColor, setFillColor] = useState(FILL_COLOR);
   const [strokeColor, setStrokeColor] = useState(STROKE_COLOR);
   const [strokeWidth, setStrokeWidth] = useState(STROKE_WIDTH);
+  const { toast } = useToast();
+
+  const [isProcessingImage, setIsProcessingImage] = useState(false);
 
   // Selection State
   const [selectedObjects, setSelectedObjects] = useState<fabric.Object[]>([]);
+
+  
 
   // History Management
   const canvasHistory = useRef<CanvasHistory>({
@@ -163,6 +170,104 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
     saveState();
   }, [canvas, saveState]);
 
+  const removeBackground = useCallback(async () => {
+    if (!canvas) return;
+  
+    const activeObject = canvas.getActiveObject();
+    if (!activeObject || activeObject.type !== 'image') {
+      toast({
+        title: "Error",
+        description: "Please select an image first",
+        status: "error"
+      });
+      return;
+    }
+  
+    try {
+      setIsProcessingImage(true);
+      
+      toast({
+        title: "Processing Image",
+        description: "Removing background...",
+        status: "loading"
+      });
+  
+      // Get the image element
+      const imageElement = (activeObject as fabric.Image).getElement() as HTMLImageElement;
+      
+      // Create a new image with crossOrigin attribute
+      const crossOriginImage = new Image();
+      crossOriginImage.crossOrigin = "anonymous";
+      
+      // Create a promise to handle image loading
+      const imageLoadPromise = new Promise((resolve, reject) => {
+        crossOriginImage.onload = () => resolve(crossOriginImage);
+        crossOriginImage.onerror = reject;
+        
+        // Add a timestamp to bypass cache
+        const sourceUrl = imageElement.src;
+        crossOriginImage.src = sourceUrl.includes('?') 
+          ? `${sourceUrl}&timestamp=${new Date().getTime()}` 
+          : `${sourceUrl}?timestamp=${new Date().getTime()}`;
+      });
+  
+      // Wait for image to load
+      await imageLoadPromise;
+  
+      // Create temporary canvas
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = crossOriginImage.width;
+      tempCanvas.height = crossOriginImage.height;
+      
+      const ctx = tempCanvas.getContext('2d');
+      if (!ctx) throw new Error('Could not get canvas context');
+      
+      // Draw the cross-origin image
+      ctx.drawImage(crossOriginImage, 0, 0);
+      const imageData = tempCanvas.toDataURL('image/png');
+      
+      // Process the image
+      const processedImageData = await backgroundApi.removeBackground(imageData);
+      
+      // Create new image with processed data
+      fabric.Image.fromURL(processedImageData, (img) => {
+        if (!canvas) return;
+  
+        // Maintain position and scale of original image
+        img.set({
+          left: activeObject.left,
+          top: activeObject.top,
+          scaleX: activeObject.scaleX,
+          scaleY: activeObject.scaleY,
+          angle: activeObject.angle,
+        });
+  
+        // Replace old image with new one
+        canvas.remove(activeObject);
+        canvas.add(img);
+        canvas.setActiveObject(img);
+        canvas.renderAll();
+        saveState();
+  
+        toast({
+          title: "Success",
+          description: "Background removed successfully",
+          status: "success"
+        });
+      }, { crossOrigin: 'anonymous' }); // Add crossOrigin here too
+  
+    } catch (error) {
+      console.error('Failed to remove background:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to remove background",
+        status: "error"
+      });
+    } finally {
+      setIsProcessingImage(false);
+    }
+  }, [canvas, saveState, toast]);
+
   const changeStrokeWidth = useCallback((value: number) => {
     setStrokeWidth(value);
 
@@ -204,7 +309,8 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
       getFillColor: () => fillColor,
       getStrokeColor: () => strokeColor,
       getStrokeWidth: () => strokeWidth,
-
+      removeBackground,
+      isProcessingImage,
 
       getActiveStrokeDashArray: () => {
         const selectedObject = selectedObjects[0];
@@ -243,8 +349,8 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
         saveState();
       },
 
-      delete:() =>{
-        canvas.getActiveObjects().forEach((object)=>canvas.remove(object));
+      delete: () => {
+        canvas.getActiveObjects().forEach((object) => canvas.remove(object));
         canvas.discardActiveObject();
         canvas.renderAll();
       },
@@ -290,7 +396,7 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
         canvas.renderAll();
         saveState();
       },
-    
+
       getActiveTextAlign: () => {
         const selectedObject = selectedObjects[0] as TextObject;
         if (!selectedObject || !isTextType(selectedObject.type)) {
@@ -298,7 +404,7 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
         }
         return (selectedObject.textAlign || "left") as TextAlign;
       },
-    
+
       changeFontFamily: (value: string) => {
         canvas.getActiveObjects().forEach((object) => {
           if (isTextType(object.type)) {
@@ -308,7 +414,7 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
         canvas.renderAll();
         saveState();
       },
-    
+
       getActiveFontFamily: () => {
         const selectedObject = selectedObjects[0] as TextObject;
         if (!selectedObject || !isTextType(selectedObject.type)) {
@@ -316,7 +422,7 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
         }
         return selectedObject.fontFamily || FONT_FAMILY;
       },
-    
+
       changeFontStyle: (value: FontStyle) => {
         canvas.getActiveObjects().forEach((object) => {
           if (isTextType(object.type)) {
@@ -326,7 +432,7 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
         canvas.renderAll();
         saveState();
       },
-    
+
       getActiveFontStyle: () => {
         const selectedObject = selectedObjects[0] as TextObject;
         if (!selectedObject || !isTextType(selectedObject.type)) {
@@ -334,7 +440,7 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
         }
         return (selectedObject.fontStyle || "normal") as FontStyle;
       },
-    
+
       changeFontWeight: (value: number) => {
         canvas.getActiveObjects().forEach((object) => {
           if (isTextType(object.type)) {
@@ -344,7 +450,7 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
         canvas.renderAll();
         saveState();
       },
-    
+
       getActiveFontWeight: () => {
         const selectedObject = selectedObjects[0] as TextObject;
         if (!selectedObject || !isTextType(selectedObject.type)) {
@@ -352,7 +458,7 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
         }
         return selectedObject.fontWeight || 400;
       },
-    
+
       changeFontUnderline: (value: boolean) => {
         canvas.getActiveObjects().forEach((object) => {
           if (isTextType(object.type)) {
@@ -362,7 +468,7 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
         canvas.renderAll();
         saveState();
       },
-    
+
       getActiveFontUnderline: () => {
         const selectedObject = selectedObjects[0] as TextObject;
         if (!selectedObject || !isTextType(selectedObject.type)) {
@@ -370,7 +476,7 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
         }
         return selectedObject.underline || false;
       },
-    
+
       changeFontLinethrough: (value: boolean) => {
         canvas.getActiveObjects().forEach((object) => {
           if (isTextType(object.type)) {
@@ -380,7 +486,7 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
         canvas.renderAll();
         saveState();
       },
-    
+
       getActiveFontLinethrough: () => {
         const selectedObject = selectedObjects[0] as TextObject;
         if (!selectedObject || !isTextType(selectedObject.type)) {
@@ -398,7 +504,7 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
         canvas.renderAll();
         saveState();
       },
-      
+
       getActiveFontSize: () => {
         const selectedObject = selectedObjects[0] as TextObject;
         if (!selectedObject || !isTextType(selectedObject.type)) {
@@ -529,7 +635,9 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}) => {
     changeStrokeWidth,
     getActiveFillColor,
     getActiveStrokeColor,
-    getActiveStrokeWidth
+    getActiveStrokeWidth,
+    removeBackground,
+      isProcessingImage,
   ]);
 
   // Canvas initialization

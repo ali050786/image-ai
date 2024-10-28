@@ -12,7 +12,9 @@ import { Toolbar } from './toolbar';
 import { StrokeColorSidebar } from './stroke-color-sidebar';
 import { StrokeWidthSidebar } from './stroke-width-sidebar';
 import { OpacitySidebar } from './opacity-sidebar';
-import {TextSidebar} from './text-sidebar'
+import { TextSidebar } from './text-sidebar'
+import { ImageSidebar } from './image-sidebar';
+import { BackgroundRemovalSidebar } from './background-removal';
 
 export const Editor = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -52,6 +54,12 @@ export const Editor = () => {
           activeTool={activeTool}
           onChangeActiveTool={onChangeActiveTool}
         />
+
+        <BackgroundRemovalSidebar
+          editor={editor}
+          activeTool={activeTool}
+          onChangeActiveTool={onChangeActiveTool}
+        />
         <ShapeSidebar
           editor={editor}
           activeTool={activeTool}
@@ -78,6 +86,11 @@ export const Editor = () => {
           onChangeActiveTool={onChangeActiveTool}
         />
         <TextSidebar
+          editor={editor}
+          activeTool={activeTool}
+          onChangeActiveTool={onChangeActiveTool}
+        />
+        <ImageSidebar
           editor={editor}
           activeTool={activeTool}
           onChangeActiveTool={onChangeActiveTool}

@@ -19,7 +19,9 @@ import {
   DeleteIcon,
   Trash2Icon,
   ArrowUpFromLine,
-  ArrowDownFromLine
+  ArrowDownFromLine,
+  EraserIcon,
+  LucideLoader2
 } from "lucide-react";
 import { RxTransparencyGrid } from "react-icons/rx";
 import {
@@ -242,8 +244,10 @@ export const Toolbar = ({
             >
               <Strikethrough className="h-4 w-4" />
             </Button>
+
           </div>
         </>
+
       )}
 
 
@@ -290,6 +294,34 @@ export const Toolbar = ({
             <Trash2Icon className="size-4" />
           </Button>
         </Hint>
+
+        {isImage && (
+          <>
+          <Separator orientation="vertical" className="h-8" />
+          <div className="flex items-center h-full justify-center">
+            <Hint label="Remove Background" side="bottom" sideOffset={5}>
+              <Button
+                onClick={() => editor?.removeBackground()}
+                size="icon"
+                variant="ghost"
+                disabled={editor?.isProcessingImage}
+                className={cn(
+                  activeTool === "remove-bg" && "bg-gray-100",
+                  "relative"
+                )}
+              >
+                {editor?.isProcessingImage ? (
+                  <LucideLoader2 className="size-4 animate-spin" />
+                ) : (
+                  <EraserIcon className="size-4" />
+                )}
+              </Button>
+            </Hint>
+          </div>
+        </>
+      
+
+        )}
       </div>
     </div>
   );

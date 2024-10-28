@@ -17,6 +17,9 @@ export interface Editor {
   canvas: fabric.Canvas;
   selectedObjects: fabric.Object[];
 
+  removeBackground: () => Promise<void>;
+  isProcessingImage: boolean;
+
   // Selection methods
   isObjectSelected: () => boolean;
   getActiveObjects: () => fabric.Object[];
@@ -145,3 +148,6 @@ export const fonts = [
   "Comic Sans MS"
 ] as const;
 
+export interface EditorState {
+  isProcessingImage: boolean;
+}
