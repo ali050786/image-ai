@@ -6,6 +6,7 @@ import { useEditorCore } from './core/useEditorCore';
 import { useEditorObjects } from './objects/useEditorObjects';
 import { useEditorStyles } from './styling/useEditorStyles';
 import { Editor, FontStyle, TextAlign } from '../types';
+import { useSVGImport } from './objects/useSVGImport';
 
 export interface EditorHookProps {
   clearSelectionCallback?: () => void;
@@ -33,6 +34,14 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}): Edi
   // Initialize styling functionality
   const styles = useEditorStyles({
     ...core,
+    saveState: core.saveState,
+  });
+
+
+   // Initialize SVG import functionality
+   const svgImport = useSVGImport({
+    ...core,
+    addToCanvas: core.addToCanvas,
     saveState: core.saveState,
   });
 
@@ -92,6 +101,7 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}): Edi
       getActiveStrokeWidth: styles.getActiveStrokeWidth,
       getActiveOpacity: styles.getActiveOpacity,
       
+      
       // Stroke Methods
       getActiveStrokeDashArray: () => [], // Add implementation if needed
       getActiveStrokeLineJoin: () => 'miter', // Add implementation if needed
@@ -103,10 +113,11 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}): Edi
       // Background Removal
       removeBackground: styles.removeBackground,
       isProcessingImage: styles.isProcessingImage,
+      loadSVG: svgImport.loadSVG,
     };
 
     return editorInterface;
-  }, [core.canvas, core.selectedObjects, core, objects, styles]);
+  }, [core.canvas, core.selectedObjects, core, objects, styles, svgImport]);
 
   return {
     init: core.init,

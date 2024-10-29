@@ -76,6 +76,8 @@ export interface Editor {
     // Background Removal
     removeBackground: () => Promise<void>;
     isProcessingImage: boolean;
+
+    loadSVG: (file: File) => Promise<void>;
 }
 
 // Default style constants

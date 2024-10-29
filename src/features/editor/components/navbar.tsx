@@ -1,4 +1,5 @@
-import { MousePointerClick, ChevronDown, File } from "lucide-react";
+import { MousePointerClick, ChevronDown, File, FileUp } from "lucide-react";
+import { useRef } from 'react';
 import { ActiveTool } from "../active-types";
 import { Button } from "../../../components/ui/button";
 import { Separator } from "../../../components/ui/separator";
@@ -10,16 +11,84 @@ import {
 } from "../../../components/ui/dropdown-menu";
 import { Hint } from "../../../components/hint";
 import { cn } from "../../../lib/utils";
+import { Editor } from "../types"; // Add this import
+import { useToast } from "../hooks/use-toast";
 
 interface NavbarProps {
   activeTool: ActiveTool;
   onChangeActiveTool: (tool: ActiveTool) => void;
+  editor?: Editor; // Make editor optional since it might be undefined initially
 }
 
 export const Navbar = ({
   activeTool,
   onChangeActiveTool,
+  editor,
 }: NavbarProps) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+
+  const handleSVGImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    console.log("File selected:", file); // Debug log
+
+    if (!file) {
+      console.log("No file selected"); // Debug log
+      return;
+    }
+
+    if (!editor) {
+      console.log("Editor not initialized"); // Debug log
+      return;
+    }
+
+    // Validate file type
+    if (!file.name.toLowerCase().endsWith('.svg')) {
+      console.log("Invalid file type:", file.type); // Debug log
+      toast({
+        title: "Error",
+        description: "Please select a valid SVG file",
+        status: "error"
+      });
+      return;
+    }
+
+    try {
+      console.log("Starting SVG import..."); // Debug log
+      toast({
+        title: "Processing",
+        description: "Importing SVG...",
+        status: "loading"
+      });
+
+      await editor.loadSVG(file);
+      console.log("SVG import successful"); // Debug log
+      
+      toast({
+        title: "Success",
+        description: "SVG imported successfully",
+        status: "success"
+      });
+    } catch (error) {
+      console.error("SVG import error:", error); // Debug log
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to import SVG",
+        status: "error"
+      });
+    } finally {
+      // Reset input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleUploadClick = () => {
+    console.log("Upload button clicked"); // Debug log
+    fileInputRef.current?.click();
+  };
+
   return (
     <nav className="w-full flex items-center p-4 h-[68px]">
       <div className="px-4">
@@ -48,7 +117,26 @@ export const Navbar = ({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        
+        <Separator orientation="vertical" className="mx-2" />
+      
+        <input
+        ref={fileInputRef}
+        type="file"
+        accept=".svg"
+        onChange={handleSVGImport}
+        className="hidden"
+        onClick={e => console.log("File input clicked")} // Debug log
+      />
+      
+      <Hint label="Import SVG" side="bottom" sideOffset={10}>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleUploadClick}
+        >
+          <FileUp className="size-4" />
+        </Button>
+      </Hint>
         <Separator orientation="vertical" className="mx-2" />
         
         <Hint label="Select" side="bottom" sideOffset={10}>
