@@ -9,6 +9,7 @@ import {
   } from "lucide-react";
   import { ActiveTool } from "../active-types";
   import { SidebarItem } from "./sidebar-item";
+  import { Hint } from "../../../components/hint";
   
   interface SidebarProps {
     activeTool: ActiveTool;
@@ -20,14 +21,20 @@ import {
     onChangeActiveTool,
   }: SidebarProps) => {
     return (
-      <aside className="bg-white flex flex-col w-[100px] h-full border-r">
+      <aside className="fixed left-2 top-32 flex flex-col items-center justify-center bg-background border rounded-xl shadow-lg p-2 z-10">
         <ul className="flex flex-col">
+          <Hint
+              label="Design Template"
+              side="bottom"
+              sideOffset={5}
+            >
           <SidebarItem
             icon={LayoutTemplate}
             label="Design"
             isActive={activeTool === "templates"}
             onClick={() => onChangeActiveTool("templates")}
           />
+          </Hint>
           <SidebarItem
             icon={ImageIcon} 
             label="Image"

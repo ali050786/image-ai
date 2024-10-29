@@ -14,67 +14,68 @@ export interface TextObject extends fabric.IText {
 
 
 export interface Editor {
-  canvas: fabric.Canvas;
-  selectedObjects: fabric.Object[];
-
-  removeBackground: () => Promise<void>;
-  isProcessingImage: boolean;
-
-  // Selection methods
-  isObjectSelected: () => boolean;
-  getActiveObjects: () => fabric.Object[];
-  delete: () => void;
-  getActiveOpacity: () => number;
-  changeOpacity: (value: number) => void;
-
-  // Color management methods
-  getFillColor: () => string;
-  getStrokeWidth: () => number;
-  changeFillColor: (value: string) => void;
-  changeStrokeColor: (value: string) => void;
-  changeStrokeWidth: (value: number) => void;
-  getActiveFillColor: () => string;
-  getActiveStrokeColor: () => string;
-  getActiveStrokeWidth: () => number;  // Add this line
-
-   // Text Methods
-   addText: (value: string, options?: fabric.ITextboxOptions) => void;
-   changeFontSize: (value: number) => void;
-   changeFontFamily: (value: string) => void;
-   changeFontStyle: (value: FontStyle) => void;
-   changeFontWeight: (value: number) => void;
-   changeTextAlign: (value: TextAlign) => void;
-   changeFontUnderline: (value: boolean) => void;
-   changeFontLinethrough: (value: boolean) => void;
-
-
-  // Getters for text properties
-  getActiveFontSize: () => number;
-  getActiveFontFamily: () => string; 
-  getActiveFontStyle: () => FontStyle;
-  getActiveFontWeight: () => number;
-  getActiveTextAlign: () => TextAlign;
-  getActiveFontUnderline: () => boolean;
-  getActiveFontLinethrough: () => boolean;
-
-  getActiveStrokeDashArray: () => number[];
-  getActiveStrokeLineJoin: () => string;
-  getActiveStrokeLineCap: () => string;
-  changeStrokeDashArray: (value: number[]) => void;
-  changeStrokeLineJoin: (value: string) => void;
-  changeStrokeLineCap: (value: string) => void;
-
-
-  bringForward: () => void;
-  sendBackwards: () => void;
-
-  // Shape creation methods
-  addCircle: () => void;
-  addSoftRectangle: () => void;
-  addRectangle: () => void;
-  addTriangle: () => void;
-  addInverseTriangle: () => void;
-  addDiamond: () => void;
+    // Core Properties
+    canvas: fabric.Canvas;
+    selectedObjects: fabric.Object[];
+  
+    // Core Methods
+    isObjectSelected: () => boolean;
+    getActiveObjects: () => fabric.Object[];
+  
+    // Object Methods
+    addCircle: (options?: typeof CIRCLE_OPTIONS) => void;
+    addSoftRectangle: () => void;
+    addRectangle: () => void;
+    addTriangle: () => void;
+    addInverseTriangle: () => void;
+    addDiamond: () => void;
+    addText: (value: string, options?: Partial<fabric.ITextboxOptions>) => void;
+    delete: () => void;
+    bringForward: () => void;
+    sendBackwards: () => void;
+  
+    // Style Methods
+    changeFillColor: (value: string) => void;
+    changeStrokeColor: (value: string) => void;
+    changeStrokeWidth: (value: number) => void;
+    changeOpacity: (value: number) => void;
+    changeFontFamily: (value: string) => void;
+    changeFontStyle: (value: FontStyle) => void;
+    changeTextAlign: (value: TextAlign) => void;
+    changeFontSize: (value: number) => void;
+    changeFontWeight: (value: number) => void;
+    changeFontUnderline: (value: boolean) => void;
+    changeFontLinethrough: (value: boolean) => void;
+  
+    // Style Getters
+    getFillColor: () => string;
+    getStrokeColor: () => string;
+    getStrokeWidth: () => number;
+    getActiveFillColor: () => string;
+    getActiveStrokeColor: () => string;
+    getActiveStrokeWidth: () => number;
+    getActiveOpacity: () => number;
+  
+    // Font Getters
+    getActiveFontSize: () => number;
+    getActiveFontFamily: () => string;
+    getActiveFontStyle: () => FontStyle;
+    getActiveFontWeight: () => number;
+    getActiveTextAlign: () => TextAlign;
+    getActiveFontUnderline: () => boolean;
+    getActiveFontLinethrough: () => boolean;
+  
+    // Stroke Methods
+    getActiveStrokeDashArray: () => number[];
+    getActiveStrokeLineJoin: () => string;
+    getActiveStrokeLineCap: () => string;
+    changeStrokeDashArray: (value: number[]) => void;
+    changeStrokeLineJoin: (value: string) => void;
+    changeStrokeLineCap: (value: string) => void;
+  
+    // Background Removal
+    removeBackground: () => Promise<void>;
+    isProcessingImage: boolean;
 }
 
 // Default style constants
