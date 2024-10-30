@@ -1,5 +1,6 @@
 // src/features/editor/types.ts
 import { fabric } from 'fabric';
+import { GradientConfig } from './types/gradient.types';
 
 
 export interface TextObject extends fabric.IText {
@@ -14,70 +15,75 @@ export interface TextObject extends fabric.IText {
 
 
 export interface Editor {
-    // Core Properties
-    canvas: fabric.Canvas;
-    selectedObjects: fabric.Object[];
-  
-    // Core Methods
-    isObjectSelected: () => boolean;
-    getActiveObjects: () => fabric.Object[];
-  
-    // Object Methods
-    addCircle: (options?: typeof CIRCLE_OPTIONS) => void;
-    addSoftRectangle: () => void;
-    addRectangle: () => void;
-    addTriangle: () => void;
-    addInverseTriangle: () => void;
-    addDiamond: () => void;
-    addText: (value: string, options?: Partial<fabric.ITextboxOptions>) => void;
-    delete: () => void;
-    bringForward: () => void;
-    sendBackwards: () => void;
-  
-    // Style Methods
-    changeFillColor: (value: string) => void;
-    changeStrokeColor: (value: string) => void;
-    changeStrokeWidth: (value: number) => void;
-    changeOpacity: (value: number) => void;
-    changeFontFamily: (value: string) => void;
-    changeFontStyle: (value: FontStyle) => void;
-    changeTextAlign: (value: TextAlign) => void;
-    changeFontSize: (value: number) => void;
-    changeFontWeight: (value: number) => void;
-    changeFontUnderline: (value: boolean) => void;
-    changeFontLinethrough: (value: boolean) => void;
-  
-    // Style Getters
-    getFillColor: () => string;
-    getStrokeColor: () => string;
-    getStrokeWidth: () => number;
-    getActiveFillColor: () => string;
-    getActiveStrokeColor: () => string;
-    getActiveStrokeWidth: () => number;
-    getActiveOpacity: () => number;
-  
-    // Font Getters
-    getActiveFontSize: () => number;
-    getActiveFontFamily: () => string;
-    getActiveFontStyle: () => FontStyle;
-    getActiveFontWeight: () => number;
-    getActiveTextAlign: () => TextAlign;
-    getActiveFontUnderline: () => boolean;
-    getActiveFontLinethrough: () => boolean;
-  
-    // Stroke Methods
-    getActiveStrokeDashArray: () => number[];
-    getActiveStrokeLineJoin: () => string;
-    getActiveStrokeLineCap: () => string;
-    changeStrokeDashArray: (value: number[]) => void;
-    changeStrokeLineJoin: (value: string) => void;
-    changeStrokeLineCap: (value: string) => void;
-  
-    // Background Removal
-    removeBackground: () => Promise<void>;
-    isProcessingImage: boolean;
+  // Core Properties
+  canvas: fabric.Canvas;
+  selectedObjects: fabric.Object[];
 
-    loadSVG: (file: File) => Promise<void>;
+  // Core Methods
+  isObjectSelected: () => boolean;
+  getActiveObjects: () => fabric.Object[];
+
+  // Object Methods
+  addCircle: (options?: typeof CIRCLE_OPTIONS) => void;
+  addSoftRectangle: () => void;
+  addRectangle: () => void;
+  addTriangle: () => void;
+  addInverseTriangle: () => void;
+  addDiamond: () => void;
+  addText: (value: string, options?: Partial<fabric.ITextboxOptions>) => void;
+  delete: () => void;
+  bringForward: () => void;
+  sendBackwards: () => void;
+
+  // Style Methods
+  changeFillColor: (value: string) => void;
+  changeStrokeColor: (value: string) => void;
+  changeStrokeWidth: (value: number) => void;
+  changeOpacity: (value: number) => void;
+  changeFontFamily: (value: string) => void;
+  changeFontStyle: (value: FontStyle) => void;
+  changeTextAlign: (value: TextAlign) => void;
+  changeFontSize: (value: number) => void;
+  changeFontWeight: (value: number) => void;
+  changeFontUnderline: (value: boolean) => void;
+  changeFontLinethrough: (value: boolean) => void;
+
+  // Style Getters
+  getFillColor: () => string;
+  getStrokeColor: () => string;
+  getStrokeWidth: () => number;
+  getActiveFillColor: () => string;
+  getActiveStrokeColor: () => string;
+  getActiveStrokeWidth: () => number;
+  getActiveOpacity: () => number;
+
+  // Font Getters
+  getActiveFontSize: () => number;
+  getActiveFontFamily: () => string;
+  getActiveFontStyle: () => FontStyle;
+  getActiveFontWeight: () => number;
+  getActiveTextAlign: () => TextAlign;
+  getActiveFontUnderline: () => boolean;
+  getActiveFontLinethrough: () => boolean;
+
+  // Stroke Methods
+  getActiveStrokeDashArray: () => number[];
+  getActiveStrokeLineJoin: () => string;
+  getActiveStrokeLineCap: () => string;
+  changeStrokeDashArray: (value: number[]) => void;
+  changeStrokeLineJoin: (value: string) => void;
+  changeStrokeLineCap: (value: string) => void;
+
+  // Background Removal
+  removeBackground: () => Promise<void>;
+  isProcessingImage: boolean;
+
+  loadSVG: (file: File) => Promise<void>;
+
+  // Add new gradient-related methods
+  getFillType: () => 'solid' | 'gradient';
+  getGradientConfig: () => GradientConfig | null;
+  applyGradient: (config: GradientConfig) => void;
 }
 
 // Default style constants
@@ -154,3 +160,12 @@ export const fonts = [
 export interface EditorState {
   isProcessingImage: boolean;
 }
+
+export const DEFAULT_GRADIENT_CONFIG: GradientConfig = {
+  type: 'linear',
+  angle: 90,
+  stops: [
+    { offset: 0, color: '#000000' },
+    { offset: 1, color: '#ffffff' }
+  ]
+};

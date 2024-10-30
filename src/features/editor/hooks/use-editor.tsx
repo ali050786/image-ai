@@ -114,6 +114,11 @@ export const useEditor = ({ clearSelectionCallback }: EditorHookProps = {}): Edi
       removeBackground: styles.removeBackground,
       isProcessingImage: styles.isProcessingImage,
       loadSVG: svgImport.loadSVG,
+
+       // Add gradient methods
+       getFillType: styles.getFillType,
+       getGradientConfig: styles.getGradientConfig,
+       applyGradient: styles.applyGradient,
     };
 
     return editorInterface;

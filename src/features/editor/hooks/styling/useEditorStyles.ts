@@ -4,6 +4,9 @@ import { TextObject, FontStyle, TextAlign } from '../../types';
 import { backgroundApi } from '../../api/background';
 import type { EditorCoreState } from '../core/useEditorCore';
 import { fabric } from 'fabric';
+import { GradientConfig, createGradient, gradientToConfig } from '../../types/gradient.types';
+import { DEFAULT_GRADIENT_CONFIG } from '../../types';
+
 
 interface UseEditorStylesProps extends EditorCoreState {
   saveState: () => void;
@@ -213,6 +216,50 @@ export const useEditorStyles = ({
       setIsProcessingImage(false);
     }
   }, [canvas, saveState]);
+  ////////////////////////////////////////////////////////////////
+  // New gradient methods
+  const getFillType = useCallback((): 'solid' | 'gradient' => {
+    const object = selectedObjects[0];
+    if (!object) return 'solid';
+    
+    return object.fill instanceof fabric.Gradient ? 'gradient' : 'solid';
+  }, [selectedObjects]);
+
+  const getGradientConfig = useCallback((): GradientConfig | null => {
+    const object = selectedObjects[0];
+    if (!object || !(object.fill instanceof fabric.Gradient)) {
+      return null;
+    }
+
+    try {
+      return gradientToConfig(object.fill);
+    } catch (error) {
+      console.error('Error getting gradient config:', error);
+      return DEFAULT_GRADIENT_CONFIG;
+    }
+  }, [selectedObjects]);
+
+  const applyGradient = useCallback((config: GradientConfig) => {
+    if (!canvas) return;
+
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects.length === 0) return;
+
+    activeObjects.forEach(object => {
+      try {
+        const gradient = createGradient(canvas, config, object);
+        object.set('fill', gradient);
+      } catch (error) {
+        console.error('Error applying gradient:', error);
+      }
+    });
+
+    canvas.renderAll();
+    saveState();
+  }, [canvas, saveState]);
+
+
+  ///////////////////////////////////////////////////////
 
   // Getters
   const getActiveFillColor = useCallback(() => {
@@ -271,6 +318,8 @@ export const useEditorStyles = ({
     return selectedObject.fontWeight || 400;
   }, [selectedObjects]);
 
+  
+
   return {
     // States
     fillColor,
@@ -310,5 +359,9 @@ export const useEditorStyles = ({
 
     // Background Methods
     removeBackground,
+
+    getFillType,
+    getGradientConfig,
+    applyGradient,
   };
 };

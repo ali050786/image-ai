@@ -3,7 +3,7 @@ import { useRef } from 'react';
 import { ActiveTool } from "../active-types";
 import { Button } from "../../../components/ui/button";
 import { Separator } from "../../../components/ui/separator";
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -13,6 +13,7 @@ import { Hint } from "../../../components/hint";
 import { cn } from "../../../lib/utils";
 import { Editor } from "../types"; // Add this import
 import { useToast } from "../hooks/use-toast";
+import ExportDialog from './export-dialog';
 
 interface NavbarProps {
   activeTool: ActiveTool;
@@ -63,7 +64,7 @@ export const Navbar = ({
 
       await editor.loadSVG(file);
       console.log("SVG import successful"); // Debug log
-      
+
       toast({
         title: "Success",
         description: "SVG imported successfully",
@@ -118,29 +119,29 @@ export const Navbar = ({
           </DropdownMenuContent>
         </DropdownMenu>
         <Separator orientation="vertical" className="mx-2" />
-      
+
         <input
-        ref={fileInputRef}
-        type="file"
-        accept=".svg"
-        onChange={handleSVGImport}
-        className="hidden"
-        onClick={e => console.log("File input clicked")} // Debug log
-      />
-      
-      <Hint label="Import SVG" side="bottom" sideOffset={10}>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleUploadClick}
-        >
-          <FileUp className="size-4" />
-        </Button>
-      </Hint>
+          ref={fileInputRef}
+          type="file"
+          accept=".svg"
+          onChange={handleSVGImport}
+          className="hidden"
+          onClick={e => console.log("File input clicked")} // Debug log
+        />
+
+        <Hint label="Import SVG" side="bottom" sideOffset={10}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleUploadClick}
+          >
+            <FileUp className="size-4" />
+          </Button>
+        </Hint>
         <Separator orientation="vertical" className="mx-2" />
-        
+
         <Hint label="Select" side="bottom" sideOffset={10}>
-          <Button 
+          <Button
             variant="ghost"
             size="icon"
             onClick={() => onChangeActiveTool("select")}
@@ -150,6 +151,9 @@ export const Navbar = ({
           >
             <MousePointerClick className="size-4" />
           </Button>
+        </Hint>
+        <Hint label="Export" side="bottom" sideOffset={10}>
+          <ExportDialog editor={editor} />
         </Hint>
       </div>
     </nav>
