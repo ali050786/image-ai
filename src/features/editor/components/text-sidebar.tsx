@@ -1,4 +1,3 @@
-// src/features/editor/components/text-sidebar.tsx
 import { Editor } from "../types";
 import { ToolSidebarClose } from "./tool-sidebar-close";
 import { ToolSidebarHeader } from "./tool-sidebar-header";
@@ -6,6 +5,8 @@ import { cn } from "../../../lib/utils";
 import { ScrollArea } from "../../../components/ui/scroll-area";
 import { Button } from "../../../components/ui/button";
 import { ActiveTool } from "../active-types";
+import FontPicker from "./fonts/FontPicker";
+import { Separator } from "../../../components/ui/separator";
 
 interface TextSidebarProps {
   editor: Editor | undefined;
@@ -18,8 +19,14 @@ export const TextSidebar = ({
   activeTool,
   onChangeActiveTool,
 }: TextSidebarProps) => {
+  const selectedFont = editor?.getActiveFontFamily() || "Arial";
+
   const onClose = () => {
     onChangeActiveTool("select");
+  };
+
+  const handleFontChange = (fontFamily: string) => {
+    editor?.changeFontFamily(fontFamily);
   };
 
   return (
@@ -31,52 +38,56 @@ export const TextSidebar = ({
     > 
       <ToolSidebarHeader 
         title="Text" 
-        description="Add text to your canvas" 
+        description="Add text and customize fonts" 
       />
       <ScrollArea>
         <div className="p-4 space-y-4">
-          <Button
-            className="w-full"
-            onClick={() => editor?.addText("Textbox")}
-          >
-            Add a textbox
-          </Button>
-          <Button
-            className="w-full h-16"
-            variant="secondary"
-            size="lg"
-            onClick={() => editor?.addText("Heading", {
-              fontSize: 80,
-              fontWeight: 700,
-            })}
-          >
-            <span className="text-3xl font-bold">
-              Add a heading
-            </span>
-          </Button>
-          <Button
-            className="w-full h-16"
-            variant="secondary"
-            size="lg"
-            onClick={() => editor?.addText("Subheading", {
-              fontSize: 44,
-              fontWeight: 600,
-            })}
-          >
-            <span className="text-xl font-semibold">
-              Add a subheading
-            </span>
-          </Button>
-          <Button
-            className="w-full h-16"
-            variant="secondary"
-            size="lg"
-            onClick={() => editor?.addText("Paragraph", {
-              fontSize: 32,
-            })}
-          >
-            Paragraph
-          </Button>
+          <div className="space-y-4">
+            <Button
+              className="w-full"
+              onClick={() => editor?.addText("Click to edit text")}
+            >
+              Add a textbox
+            </Button>
+            <Button
+              className="w-full h-16"
+              variant="secondary"
+              size="lg"
+              onClick={() => editor?.addText("Heading", {
+                fontSize: 80,
+                fontWeight: 700,
+              })}
+            >
+              <span className="text-3xl font-bold">
+                Add a heading
+              </span>
+            </Button>
+            <Button
+              className="w-full h-16"
+              variant="secondary"
+              size="lg"
+              onClick={() => editor?.addText("Subheading", {
+                fontSize: 44,
+                fontWeight: 600,
+              })}
+            >
+              <span className="text-xl font-semibold">
+                Add a subheading
+              </span>
+            </Button>
+          </div>
+
+          <Separator />
+
+          {editor?.isObjectSelected() && editor?.selectedObjects[0]?.type === "textbox" && (
+            <div className="space-y-4">
+              <h3 className="font-medium">Font Settings</h3>
+              <FontPicker 
+                value={selectedFont}
+                onChange={handleFontChange}
+              />
+            </div>
+          )}
         </div>
       </ScrollArea>
       <ToolSidebarClose onClick={onClose} />

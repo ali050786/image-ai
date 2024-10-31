@@ -6,6 +6,7 @@ import { Button } from "../../../components/ui/button";
 import { Hint } from "../../../components/hint";
 import { ActiveTool } from "../active-types";
 import { BsBorderWidth } from "react-icons/bs";
+import { FontDropdown } from './fonts/FontDropdown'
 import {
   BringToFrontIcon,
   SendToBackIcon,
@@ -146,25 +147,10 @@ export const Toolbar = ({
           <Separator orientation="vertical" className="h-8" />
 
           {/* Font Family */}
-          <Select
+          <FontDropdown
             value={getFontFamily()}
-            onValueChange={(value) => editor?.changeFontFamily(value)}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Font Family" />
-            </SelectTrigger>
-            <SelectContent>
-              {fonts.map((font) => (
-                <SelectItem
-                  key={font}
-                  value={font}
-                  style={{ fontFamily: font }}
-                >
-                  {font}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            onSelect={(value) => editor?.changeFontFamily(value)}
+          />
 
           {/* Font Size */}
           <div className="flex items-center gap-x-2">
@@ -297,29 +283,29 @@ export const Toolbar = ({
 
         {isImage && (
           <>
-          <Separator orientation="vertical" className="h-8" />
-          <div className="flex items-center h-full justify-center">
-            <Hint label="Remove Background" side="bottom" sideOffset={5}>
-              <Button
-                onClick={() => editor?.removeBackground()}
-                size="icon"
-                variant="ghost"
-                disabled={editor?.isProcessingImage}
-                className={cn(
-                  activeTool === "remove-bg" && "bg-gray-100",
-                  "relative"
-                )}
-              >
-                {editor?.isProcessingImage ? (
-                  <LucideLoader2 className="size-4 animate-spin" />
-                ) : (
-                  <EraserIcon className="size-4" />
-                )}
-              </Button>
-            </Hint>
-          </div>
-        </>
-      
+            <Separator orientation="vertical" className="h-8" />
+            <div className="flex items-center h-full justify-center">
+              <Hint label="Remove Background" side="bottom" sideOffset={5}>
+                <Button
+                  onClick={() => editor?.removeBackground()}
+                  size="icon"
+                  variant="ghost"
+                  disabled={editor?.isProcessingImage}
+                  className={cn(
+                    activeTool === "remove-bg" && "bg-gray-100",
+                    "relative"
+                  )}
+                >
+                  {editor?.isProcessingImage ? (
+                    <LucideLoader2 className="size-4 animate-spin" />
+                  ) : (
+                    <EraserIcon className="size-4" />
+                  )}
+                </Button>
+              </Hint>
+            </div>
+          </>
+
 
         )}
       </div>
